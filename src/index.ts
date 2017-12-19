@@ -113,7 +113,7 @@ function collectDefinitions(
   allDefinitions: TypeDefinitionNode[][]
   typeDefinitions: TypeDefinitionNode[][]
 } {
-  const key = path.basename(filePath)
+  const key = path.resolve(filePath)
   const dirname = path.dirname(filePath)
 
   // Get TypeDefinitionNodes from current schema
