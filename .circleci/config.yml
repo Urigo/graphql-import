@@ -10,12 +10,14 @@ jobs:
       - run:
           name: test
           command: |
-            mkdir -p ~/reports/tests
+            mkdir -p ~/reports
             yarn test
       - store_test_results:
-          path: ~/reports/tests
+          path: ~/reports
+          prefix: tests
       - store_artifacts:
-          path: ~/reports/tests
+          path: ~/reports
+          prefix: tests
       - store_artifacts:
           path: coverage
           prefix: coverage
