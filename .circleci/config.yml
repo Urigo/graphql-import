@@ -10,12 +10,15 @@ jobs:
       - run:
           name: test
           command: |
-            mkdir -p ~/reports/graphql-import
+            mkdir -p ~/reports/tests
             yarn test
       - store_test_results:
-          path: ~/reports/graphql-import
+          path: ~/reports/tests
       - store_artifacts:
-          path: ~/reports/graphql-import
+          path: ~/reports/tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
       - run: semantic-release
       - run: yarn docs
       # needs proper NOW setup first
