@@ -7,7 +7,15 @@ jobs:
       - checkout
       - run: sudo npm install -g yarn semantic-release@12.0.0
       - run: yarn install
-      - run: yarn test
+      - run:
+          name: test
+          command: |
+            mkdir -p ~/reports
+            yarn test
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
       - run: semantic-release
       - run: yarn docs
       # needs proper NOW setup first
