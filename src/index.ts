@@ -68,8 +68,8 @@ export function parseSDL(sdl: string): RawModule[] {
  * @param filePath File path to the initial schema file
  * @returns Single bundled schema with all imported types
  */
-export function importSchema(schema: string, schemas: { [key: string]: string } = {}): string {
-  const sdl = read(schema)
+export function importSchema(schema: string, schemas?: { [key: string]: string }): string {
+  const sdl = read(schema, schemas) || schema
   const document = parse(sdl, { noLocation: true })
 
   // Recursively process the imports, starting by importing all types from the initial schema
@@ -165,7 +165,7 @@ function collectDefinitions(
     if (!processedFiles.has(moduleFilePath)) {
       collectDefinitions(
         m.imports,
-        read(moduleFilePath),
+        read(moduleFilePath, schemas),
         moduleFilePath,
         schemas,
         processedFiles,

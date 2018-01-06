@@ -116,7 +116,7 @@ type C2 {
   t.is(importSchema('fixtures/import-all/a.graphql'), expectedSDL)
 })
 
-test('importSchema: import all from string', t => {
+test('importSchema: import all from objects', t => {
   const schemaC = `
     type C1 {
       id: ID!
@@ -140,7 +140,7 @@ test('importSchema: import all from string', t => {
     }`
 
   const schemaA = `
-    # import B from "schemaB"
+    # import B from 'schemaB'
 
     type A {
       # test 1
@@ -150,7 +150,7 @@ test('importSchema: import all from string', t => {
     }`
 
   const schemas = {
-    schemaB, schemaC
+    schemaA, schemaB, schemaC
   }
 
   const expectedSDL = `\
@@ -175,6 +175,21 @@ type C2 {
 }
 `
   t.is(importSchema(schemaA, schemas), expectedSDL)
+})
+
+test(`importSchema: single object schema`, t => {
+  const schemaA = `
+    type A {
+      field: String
+    }`
+
+  const expectedSDL = `\
+type A {
+  field: String
+}
+`
+
+  t.is(importSchema(schemaA), expectedSDL)
 })
 
 test(`importSchema: import all mix 'n match`, t => {
@@ -255,10 +270,6 @@ type C1 {
 }
 
 type C2 {
-  id: ID!
-}
-
-type C3 {
   id: ID!
 }
 `
