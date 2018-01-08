@@ -57,7 +57,7 @@ test('parse: multi line import', t => {
 test('importSchema: field types', t => {
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -77,7 +77,7 @@ type C {
 test('importSchema: enums', t => {
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -94,7 +94,7 @@ enum B {
 test('importSchema: import all', t => {
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -144,7 +144,7 @@ test('importSchema: import all from objects', t => {
 
     type A {
       # test 1
-      first: String @first
+      first: String
       second: Float
       b: B
     }`
@@ -155,7 +155,7 @@ test('importSchema: import all from objects', t => {
 
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -207,7 +207,7 @@ test(`importSchema: import all mix 'n match`, t => {
 
     type A {
       # test 1
-      first: String @first
+      first: String
       second: Float
       b: B
     }`
@@ -218,7 +218,7 @@ test(`importSchema: import all mix 'n match`, t => {
 
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -247,14 +247,14 @@ test(`importSchema: import all mix 'n match 2`, t => {
 
     type A {
       # test 1
-      first: String @first
+      first: String
       second: Float
       b: B
     }`
 
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -325,7 +325,7 @@ directive @withB(argB: B) on FIELD_DEFINITION
 test('importSchema: interfaces', t => {
   const expectedSDL = `\
 type A implements B {
-  first: String @first
+  first: String
   second: Float
 }
 
@@ -361,7 +361,7 @@ type B1 implements B {
 test('importSchema: input types', t => {
   const expectedSDL = `\
 type A {
-  first(b: B): String @first
+  first(b: B): String
   second: Float
 }
 
@@ -385,7 +385,7 @@ test('importSchema: complex test', t => {
 test('circular imports', t => {
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
@@ -412,7 +412,7 @@ type C2 {
 test('related types', t => {
   const expectedSDL = `\
 type A {
-  first: String @first
+  first: String
   second: Float
   b: B
 }
