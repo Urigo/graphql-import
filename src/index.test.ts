@@ -310,9 +310,14 @@ test('importSchema: directive', t => {
   const expectedSDL = `\
 type A {
   first: String @upper
+  second: String @withB
 }
 
 directive @upper on FIELD_DEFINITION
+
+scalar B
+
+directive @withB(argB: B) on FIELD_DEFINITION
 `
   t.is(importSchema('fixtures/directive/a.graphql'), expectedSDL)
 })
