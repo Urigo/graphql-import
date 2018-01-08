@@ -14,8 +14,12 @@ const builtinTypes = ['String', 'Float', 'Int', 'Boolean', 'ID']
 
 const builtinDirectives = ['deprecated', 'skip','include']
 
+export type ValidDefinitionNode =
+    | DirectiveDefinitionNode
+    | TypeDefinitionNode
+
 export interface DefinitionMap {
-  [key: string]: TypeDefinitionNode
+  [key: string]: ValidDefinitionNode
 }
 
 /**
@@ -28,10 +32,10 @@ export interface DefinitionMap {
  * @returns Final collection of type definitions for the resulting schema
  */
 export function completeDefinitionPool(
-  allDefinitions: TypeDefinitionNode[],
-  definitionPool: TypeDefinitionNode[],
-  newTypeDefinitions: TypeDefinitionNode[],
-): TypeDefinitionNode[] {
+  allDefinitions: ValidDefinitionNode[],
+  definitionPool: ValidDefinitionNode[],
+  newTypeDefinitions: ValidDefinitionNode[],
+): ValidDefinitionNode[] {
   const visitedDefinitions: { [name: string]: boolean } = {}
   while (newTypeDefinitions.length > 0) {
     const schemaMap: DefinitionMap = keyBy(allDefinitions, d => d.name.value)
@@ -69,12 +73,12 @@ export function completeDefinitionPool(
  * @returns All relevant type definitions to add to the final schema
  */
 function collectNewTypeDefinitions(
-  allDefinitions: TypeDefinitionNode[],
-  definitionPool: TypeDefinitionNode[],
-  newDefinition: TypeDefinitionNode,
+  allDefinitions: ValidDefinitionNode[],
+  definitionPool: ValidDefinitionNode[],
+  newDefinition: ValidDefinitionNode,
   schemaMap: DefinitionMap,
-): TypeDefinitionNode[] {
-  let newTypeDefinitions: TypeDefinitionNode[] = []
+): ValidDefinitionNode[] {
+  let newTypeDefinitions: ValidDefinitionNode[] = []
 
   function processDirective(directive: DirectiveNode) {
     const directiveName = directive.name.value
@@ -83,7 +87,7 @@ function collectNewTypeDefinitions(
       !definitionPool.some(d => d.name.value === directiveName) &&
       !builtinDirectives.includes(directiveName)
     ) {
-      const directive = (schemaMap[directiveName] as any) as DirectiveDefinitionNode
+      const directive = schemaMap[directiveName] as DirectiveDefinitionNode
       if (!directive) {
         throw new Error(
           `Directive ${directiveName}: Couldn't find type ${
@@ -110,11 +114,11 @@ function collectNewTypeDefinitions(
         }
       })
 
-      newTypeDefinitions.push(schemaMap[directiveName])
+      newTypeDefinitions.push(directive)
     }
   }
 
-  if (newDefinition.directives) {
+  if (newDefinition.kind !== 'DirectiveDefinition') {
     newDefinition.directives.forEach(processDirective)
   }
 
