@@ -133,9 +133,6 @@ function collectNewTypeDefinitions(
     // iterate over all fields
     newDefinition.fields.forEach(field => {
       collectNode(field)
-
-      field.directives.forEach(collectDirective)
-
       // collect missing argument input types
       field.arguments.forEach(collectNode)
     })
@@ -160,6 +157,8 @@ function collectNewTypeDefinitions(
       }
       newTypeDefinitions.push(argTypeMatch)
     }
+
+    node.directives.forEach(collectDirective)
   }
 
   function collectDirective(directive: DirectiveNode) {
