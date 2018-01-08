@@ -8,6 +8,8 @@ import {
   NamedTypeNode,
   DirectiveNode,
   DirectiveDefinitionNode,
+  InputValueDefinitionNode,
+  FieldDefinitionNode,
 } from 'graphql'
 
 const builtinTypes = ['String', 'Float', 'Int', 'Boolean', 'ID']
@@ -80,87 +82,17 @@ function collectNewTypeDefinitions(
 ): ValidDefinitionNode[] {
   let newTypeDefinitions: ValidDefinitionNode[] = []
 
-  function processDirective(directive: DirectiveNode) {
-    const directiveName = directive.name.value
-    console.log(directiveName)
-    if (
-      !definitionPool.some(d => d.name.value === directiveName) &&
-      !builtinDirectives.includes(directiveName)
-    ) {
-      const directive = schemaMap[directiveName] as DirectiveDefinitionNode
-      if (!directive) {
-        throw new Error(
-          `Directive ${directiveName}: Couldn't find type ${
-            directiveName
-          } in any of the schemas.`,
-        )
-      }
-      directive.arguments.forEach(argument => {
-        const argType = getNamedType(argument.type)
-        const argTypeName = argType.name.value
-        if (
-          !definitionPool.some(d => d.name.value === argTypeName) &&
-          !builtinTypes.includes(argTypeName)
-        ) {
-          const argTypeMatch = schemaMap[argTypeName]
-          if (!argTypeMatch) {
-            throw new Error(
-              `Directive ${directiveName}: Couldn't find type ${
-                argTypeName
-              } in any of the schemas.`,
-            )
-          }
-          newTypeDefinitions.push(argTypeMatch)
-        }
-      })
-
-      newTypeDefinitions.push(directive)
-    }
-  }
-
   if (newDefinition.kind !== 'DirectiveDefinition') {
-    newDefinition.directives.forEach(processDirective)
+    newDefinition.directives.forEach(collectDirective)
   }
 
   if (newDefinition.kind === 'InputObjectTypeDefinition') {
-    newDefinition.fields.forEach(field => {
-      const namedType = getNamedType(field.type)
-      const typeName = namedType.name.value
-
-      // collect missing argument input types
-      if (
-        !definitionPool.some(d => d.name.value === typeName) &&
-        !builtinTypes.includes(typeName)
-      ) {
-        const argTypeMatch = schemaMap[typeName]
-        if (!argTypeMatch) {
-          throw new Error(
-            `Field ${field.name.value}: Couldn't find type ${typeName} in any of the schemas.`,
-          )
-        }
-        newTypeDefinitions.push(argTypeMatch)
-      }
-    })
+    newDefinition.fields.forEach(collectNode)
   }
 
   if (newDefinition.kind === 'InterfaceTypeDefinition') {
     const interfaceName = newDefinition.name.value
-    newDefinition.fields.forEach(field => {
-      const namedType = getNamedType(field.type)
-      const typeName = namedType.name.value
-      if (
-        !definitionPool.some(d => d.name.value === typeName) &&
-        !builtinTypes.includes(typeName)
-      ) {
-        const schemaType = schemaMap[typeName] as ObjectTypeDefinitionNode
-        if (!schemaType) {
-          throw new Error(
-            `Field ${field.name.value}: Couldn't find type ${typeName} in any of the schemas.`,
-          )
-        }
-        newTypeDefinitions.push(schemaType)
-      }
-    })
+    newDefinition.fields.forEach(collectNode)
 
     const interfaceImplementations = allDefinitions.filter(
       d =>
@@ -200,48 +132,55 @@ function collectNewTypeDefinitions(
 
     // iterate over all fields
     newDefinition.fields.forEach(field => {
-      const namedType = getNamedType(field.type)
-      const typeName = namedType.name.value
+      collectNode(field)
 
-      field.directives.forEach(processDirective)
+      field.directives.forEach(collectDirective)
 
       // collect missing argument input types
-      field.arguments.forEach(argument => {
-        const argType = getNamedType(argument.type)
-        const argTypeName = argType.name.value
-        if (
-          !definitionPool.some(d => d.name.value === argTypeName) &&
-          !builtinTypes.includes(argTypeName)
-        ) {
-          const argTypeMatch = schemaMap[argTypeName]
-          if (!argTypeMatch) {
-            throw new Error(
-              `Field ${field.name.value}: Couldn't find type ${
-                argTypeName
-              } in any of the schemas.`,
-            )
-          }
-          newTypeDefinitions.push(argTypeMatch)
-        }
-      })
-
-      // collect missing field types
-      if (
-        !definitionPool.some(d => d.name.value === typeName) &&
-        !builtinTypes.includes(typeName)
-      ) {
-        const schemaType = schemaMap[typeName] as ObjectTypeDefinitionNode
-        if (!schemaType) {
-          throw new Error(
-            `Field ${field.name.value}: Couldn't find type ${typeName} in any of the schemas.`,
-          )
-        }
-        newTypeDefinitions.push(schemaType)
-      }
+      field.arguments.forEach(collectNode)
     })
   }
 
   return newTypeDefinitions
+
+  function collectNode(node: FieldDefinitionNode | InputValueDefinitionNode) {
+    const nodeType = getNamedType(node.type)
+    const nodeTypeName = nodeType.name.value
+
+    // collect missing argument input types
+    if (
+      !definitionPool.some(d => d.name.value === nodeTypeName) &&
+      !builtinTypes.includes(nodeTypeName)
+    ) {
+      const argTypeMatch = schemaMap[nodeTypeName]
+      if (!argTypeMatch) {
+        throw new Error(
+          `Field ${node.name.value}: Couldn't find type ${nodeTypeName} in any of the schemas.`,
+        )
+      }
+      newTypeDefinitions.push(argTypeMatch)
+    }
+  }
+
+  function collectDirective(directive: DirectiveNode) {
+    const directiveName = directive.name.value
+    if (
+      !definitionPool.some(d => d.name.value === directiveName) &&
+      !builtinDirectives.includes(directiveName)
+    ) {
+      const directive = schemaMap[directiveName] as DirectiveDefinitionNode
+      if (!directive) {
+        throw new Error(
+          `Directive ${directiveName}: Couldn't find type ${
+            directiveName
+          } in any of the schemas.`,
+        )
+      }
+      directive.arguments.forEach(collectNode)
+
+      newTypeDefinitions.push(directive)
+    }
+  }
 }
 
 /**

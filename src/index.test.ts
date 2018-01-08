@@ -310,7 +310,7 @@ test('importSchema: directive', t => {
   const expectedSDL = `\
 type A {
   first: String @upper
-  second: String @withB
+  second: String @withB @deprecated
 }
 
 directive @upper on FIELD_DEFINITION
@@ -466,12 +466,12 @@ type Query {
   posts(filter: PostFilter): [Post]
 }
 
-input PostFilter {
-  field3: Int
-}
-
 type Post {
   field1: String
+}
+
+input PostFilter {
+  field3: Int
 }
 `
   const actualSDL = importSchema('fixtures/root-fields/a.graphql')
@@ -490,12 +490,12 @@ type Query {
   hello: String
 }
 
-input PostFilter {
-  field3: Int
-}
-
 type Post {
   field1: String
+}
+
+input PostFilter {
+  field3: Int
 }
 `
   const actualSDL = importSchema('fixtures/merged-root-fields/a.graphql')
@@ -514,7 +514,7 @@ test('missing type on interface', t => {
 
 test('missing type on input type', t => {
   const err = t.throws(() => importSchema('fixtures/type-not-found/c.graphql'), Error)
-  t.is(err.message, `Field myfield: Couldn't find type Post in any of the schemas.`)
+  t.is(err.message, `Field post: Couldn't find type Post in any of the schemas.`)
 })
 
 test('missing interface type', t => {
