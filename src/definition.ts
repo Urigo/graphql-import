@@ -6,9 +6,13 @@ import {
   InputObjectTypeDefinitionNode,
   TypeNode,
   NamedTypeNode,
+  DirectiveNode,
+  DirectiveDefinitionNode,
 } from 'graphql'
 
 const builtinTypes = ['String', 'Float', 'Int', 'Boolean', 'ID']
+
+const builtinDirectives = ['deprecated', 'skip','include']
 
 export interface DefinitionMap {
   [key: string]: TypeDefinitionNode
@@ -71,6 +75,48 @@ function collectNewTypeDefinitions(
   schemaMap: DefinitionMap,
 ): TypeDefinitionNode[] {
   let newTypeDefinitions: TypeDefinitionNode[] = []
+
+  function processDirective(directive: DirectiveNode) {
+    const directiveName = directive.name.value
+    console.log(directiveName)
+    if (
+      !definitionPool.some(d => d.name.value === directiveName) &&
+      !builtinDirectives.includes(directiveName)
+    ) {
+      const directive = (schemaMap[directiveName] as any) as DirectiveDefinitionNode
+      if (!directive) {
+        throw new Error(
+          `Directive ${directiveName}: Couldn't find type ${
+            directiveName
+          } in any of the schemas.`,
+        )
+      }
+      directive.arguments.forEach(argument => {
+        const argType = getNamedType(argument.type)
+        const argTypeName = argType.name.value
+        if (
+          !definitionPool.some(d => d.name.value === argTypeName) &&
+          !builtinTypes.includes(argTypeName)
+        ) {
+          const argTypeMatch = schemaMap[argTypeName]
+          if (!argTypeMatch) {
+            throw new Error(
+              `Directive ${directiveName}: Couldn't find type ${
+                argTypeName
+              } in any of the schemas.`,
+            )
+          }
+          newTypeDefinitions.push(argTypeMatch)
+        }
+      })
+
+      newTypeDefinitions.push(schemaMap[directiveName])
+    }
+  }
+
+  if (newDefinition.directives) {
+    newDefinition.directives.forEach(processDirective)
+  }
 
   if (newDefinition.kind === 'InputObjectTypeDefinition') {
     newDefinition.fields.forEach(field => {
@@ -152,6 +198,8 @@ function collectNewTypeDefinitions(
     newDefinition.fields.forEach(field => {
       const namedType = getNamedType(field.type)
       const typeName = namedType.name.value
+
+      field.directives.forEach(processDirective)
 
       // collect missing argument input types
       field.arguments.forEach(argument => {
