@@ -306,6 +306,17 @@ scalar B
   t.is(importSchema('fixtures/scalar/a.graphql'), expectedSDL)
 })
 
+test('importSchema: directive', t => {
+  const expectedSDL = `\
+type A {
+  first: String @upper
+}
+
+directive @upper on FIELD_DEFINITION
+`
+  t.is(importSchema('fixtures/directive/a.graphql'), expectedSDL)
+})
+
 test('importSchema: interfaces', t => {
   const expectedSDL = `\
 type A implements B {

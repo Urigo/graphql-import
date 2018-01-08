@@ -1,0 +1,4 @@
+#import * from 'd.graphql'
+type A {
+  first: String @upper
+}
