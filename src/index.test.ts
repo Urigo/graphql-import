@@ -531,3 +531,8 @@ test('missing type on input type', t => {
   const err = t.throws(() => importSchema('fixtures/type-not-found/f.graphql'), Error)
   t.is(err.message, `Field myfield: Couldn't find type Post in any of the schemas.`)
 })
+
+test('missing type on directive', t => {
+  const err = t.throws(() => importSchema('fixtures/type-not-found/g.graphql'), Error)
+  t.is(err.message, `Directive first: Couldn't find type first in any of the schemas.`)
+})
