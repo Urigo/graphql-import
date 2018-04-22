@@ -76,6 +76,21 @@ type Query {
   t.is(importSchema('fixtures/imports-only/all.graphql'), expectedSDL)
 })
 
+test('importSchema: imports only types only', t => {
+  const expectedSDL = `\
+type A {
+  first: String
+  second: Float
+}
+
+type B {
+  hello: String!
+}
+`
+
+  t.is(importSchema('fixtures/imports-only-types-only/all.graphql'), expectedSDL)
+})
+
 test('importSchema: field types', t => {
   const expectedSDL = `\
 type A {
