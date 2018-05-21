@@ -209,8 +209,9 @@ function collectDefinitions(
   mergedModules.forEach(m => {
     // If it was not yet processed (in case of circular dependencies)
     const moduleFilePath = isFile(filePath) && isFile(m.from)
-      ? path.resolve(path.join(dirname, m.from))
+      ? require.resolve(m.from, { paths: [dirname] })
       : m.from
+
     if (!processedFiles.has(moduleFilePath)) {
       collectDefinitions(
         m.imports,

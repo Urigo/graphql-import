@@ -1,4 +1,5 @@
 import test from 'ava'
+import * as fs from 'fs'
 import { parseImportLine, parseSDL, importSchema } from '.'
 
 test('parseImportLine: parse single import', t => {
@@ -41,6 +42,13 @@ test('parseImportLine: different path', t => {
   t.deepEqual(parseImportLine(`import A from "../new/schema.graphql"`), {
     imports: ['A'],
     from: '../new/schema.graphql',
+  })
+})
+
+test('parseImportLine: module in node_modules', t => {
+  t.deepEqual(parseImportLine(`import A from "module-name"`), {
+    imports: ['A'],
+    from: 'module-name',
   })
 })
 
@@ -600,6 +608,44 @@ type Shared {
 }
 `
   t.is(importSchema('fixtures/global/a.graphql', { shared }), expectedSDL)
+})
+
+test('Module in node_modules', t => {
+  const b = `\
+# import lower from './lower.graphql'
+
+type B {
+  id: ID!
+  nickname: String! @lower
+}
+`
+
+  const lower = `\
+directive @lower on FIELD_DEFINITION
+`
+
+  const expectedSDL = `\
+type A {
+  id: ID!
+  author: B!
+}
+
+type B {
+  id: ID!
+  nickname: String! @lower
+}
+
+directive @lower on FIELD_DEFINITION
+`
+
+  if (!fs.existsSync('node_modules/graphql-import-test')) {
+    fs.mkdirSync('node_modules/graphql-import-test')
+  }
+
+  fs.writeFileSync('node_modules/graphql-import-test/b.graphql', b)
+  fs.writeFileSync('node_modules/graphql-import-test/lower.graphql', lower)
+
+  t.is(importSchema('fixtures/import-module/a.graphql'), expectedSDL)
 })
 
 test('missing type on type', t => {
