@@ -1,4 +1,4 @@
-import { keyBy, uniqBy, includes } from 'lodash'
+import { keyBy, uniqBy, includes, reverse } from 'lodash'
 import {
   DocumentNode,
   TypeDefinitionNode,
@@ -40,7 +40,7 @@ export function completeDefinitionPool(
 ): ValidDefinitionNode[] {
   const visitedDefinitions: { [name: string]: boolean } = {}
   while (newTypeDefinitions.length > 0) {
-    const schemaMap: DefinitionMap = keyBy(allDefinitions, d => d.name.value)
+    const schemaMap: DefinitionMap = keyBy(reverse(allDefinitions), d => d.name.value)
     const newDefinition = newTypeDefinitions.shift()
     if (visitedDefinitions[newDefinition.name.value]) {
       continue
