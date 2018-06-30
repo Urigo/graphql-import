@@ -12,7 +12,7 @@ import {
 import { flatten, groupBy, includes, keyBy } from 'lodash'
 import * as path from 'path'
 
-import { completeDefinitionPool, ValidDefinitionNode } from './definition'
+import { completeDefinitionPool, ValidDefinitionNode, getSchemaDefinitionNode } from './definition'
 
 /**
  * Describes the information from a single import line
@@ -127,7 +127,12 @@ export function importSchema(
 		flatten(typeDefinitions),
 	)
 
-	// Return the schema as string
+  const existingRootFields = rootFields.filter(x => firstTypes.find(y => y.name.value === x))
+  const node = getSchemaDefinitionNode(existingRootFields)
+
+  document.definitions.push(node)
+
+  // Return the schema as string
   return print(document)
 }
 
