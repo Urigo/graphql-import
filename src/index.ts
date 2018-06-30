@@ -85,6 +85,11 @@ export function importSchema(
   const sdl = read(schema, schemas) || schema
   const document = getDocumentFromSDL(sdl)
 
+  const needSchemaDefinitionNode =
+    (rootFields[0] !== 'Query') ||
+    (rootFields[1] !== 'Mutation') ||
+    (rootFields[2] !== 'Subscription')
+
   // Recursively process the imports, starting by importing all types from the initial schema
   let { allDefinitions, typeDefinitions } = collectDefinitions(
     ['*'],
@@ -127,10 +132,12 @@ export function importSchema(
     flatten(typeDefinitions),
   )
 
-  const existingRootFields = rootFields.filter(x => firstTypes.find(y => y.name.value === x))
-  const node = getSchemaDefinitionNode(existingRootFields)
+  if (needSchemaDefinitionNode) {
+    const existingRootFields = rootFields.filter(x => firstTypes.find(y => y.name.value === x))
+    const node = getSchemaDefinitionNode(existingRootFields)
 
-  document.definitions.push(node)
+    document.definitions.push(node)
+  }
 
   // Return the schema as string
   return print(document)
