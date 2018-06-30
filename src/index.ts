@@ -1,13 +1,13 @@
 import * as fs from 'fs'
 import {
-	DefinitionNode,
-	parse,
-	print,
-	TypeDefinitionNode,
-	GraphQLObjectType,
-	ObjectTypeDefinitionNode,
-	DocumentNode,
-	Kind,
+  DefinitionNode,
+  parse,
+  print,
+  TypeDefinitionNode,
+  GraphQLObjectType,
+  ObjectTypeDefinitionNode,
+  DocumentNode,
+  Kind,
 } from 'graphql'
 import { flatten, groupBy, includes, keyBy } from 'lodash'
 import * as path from 'path'
@@ -39,20 +39,20 @@ const isFile = f => f.endsWith('.graphql')
  * @returns Processed import line
  */
 export function parseImportLine(importLine: string): RawModule {
-	// Apply regex to import line
+  // Apply regex to import line
   const matches = importLine.match(/^import (\*|(.*)) from ('|")(.*)('|");?$/)
   if (!matches || matches.length !== 6 || !matches[4]) {
     throw new Error(`Too few regex matches: ${matches}`)
   }
 
-	// Extract matches into named variables
+  // Extract matches into named variables
   const [, wildcard, importsString, , from] = matches
 
-	// Extract imported types
+  // Extract imported types
   const imports =
-		wildcard === '*' ? ['*'] : importsString.split(',').map(d => d.trim())
+    wildcard === '*' ? ['*'] : importsString.split(',').map(d => d.trim())
 
-	// Return information about the import line
+  // Return information about the import line
   return { imports, from }
 }
 
@@ -64,11 +64,11 @@ export function parseImportLine(importLine: string): RawModule {
  */
 export function parseSDL(sdl: string): RawModule[] {
   return sdl
-		.split('\n')
-		.map(l => l.trim())
-		.filter(l => l.startsWith('# import ') || l.startsWith('#import '))
-		.map(l => l.replace('#', '').trim())
-		.map(parseImportLine)
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.startsWith('# import ') || l.startsWith('#import '))
+    .map(l => l.replace('#', '').trim())
+    .map(parseImportLine)
 }
 
 /**
@@ -78,32 +78,32 @@ export function parseSDL(sdl: string): RawModule[] {
  * @returns Single bundled schema with all imported types
  */
 export function importSchema(
-	schema: string,
-	schemas?: { [key: string]: string },
-	rootFields: string[] = ['Query', 'Mutation', 'Subscription']
+  schema: string,
+  schemas?: { [key: string]: string },
+  rootFields: string[] = ['Query', 'Mutation', 'Subscription']
 ): string {
   const sdl = read(schema, schemas) || schema
   const document = getDocumentFromSDL(sdl)
 
-	// Recursively process the imports, starting by importing all types from the initial schema
+  // Recursively process the imports, starting by importing all types from the initial schema
   let { allDefinitions, typeDefinitions } = collectDefinitions(
-		['*'],
-		sdl,
-		schema,
-		rootFields,
-		schemas,
-	)
+    ['*'],
+    sdl,
+    schema,
+    rootFields,
+    schemas,
+  )
 
-	// Post processing of the final schema (missing types, unused types, etc.)
-	// Query, Mutation and Subscription should be merged
-	// And should always be in the first set, to make sure they
-	// are not filtered out.
+  // Post processing of the final schema (missing types, unused types, etc.)
+  // Query, Mutation and Subscription should be merged
+  // And should always be in the first set, to make sure they
+  // are not filtered out.
   const firstTypes = flatten(typeDefinitions).filter(d =>
-		includes(rootFields, d.name.value),
-	)
+    includes(rootFields, d.name.value),
+  )
   const otherFirstTypes = typeDefinitions[0].filter(
-		d => !includes(rootFields, d.name.value),
-	)
+    d => !includes(rootFields, d.name.value),
+  )
   const firstSet = firstTypes.concat(otherFirstTypes)
   const processedTypeNames = []
   const mergedFirstTypes = []
@@ -113,19 +113,19 @@ export function importSchema(
       mergedFirstTypes.push(type)
     } else {
       const existingType = mergedFirstTypes.find(
-				t => t.name.value === type.name.value,
-			)
+        t => t.name.value === type.name.value,
+      )
       existingType.fields = existingType.fields.concat(
-				(type as ObjectTypeDefinitionNode).fields,
-			)
+        (type as ObjectTypeDefinitionNode).fields,
+      )
     }
   }
 
   document.definitions = completeDefinitionPool(
-		flatten(allDefinitions),
-		firstSet,
-		flatten(typeDefinitions),
-	)
+    flatten(allDefinitions),
+    firstSet,
+    flatten(typeDefinitions),
+  )
 
   const existingRootFields = rootFields.filter(x => firstTypes.find(y => y.name.value === x))
   const node = getSchemaDefinitionNode(existingRootFields)
@@ -162,10 +162,10 @@ function getDocumentFromSDL(sdl: string): DocumentNode {
  */
 function isEmptySDL(sdl: string): boolean {
   return (
-		sdl
-			.split('\n')
-			.map(l => l.trim())
-			.filter(l => !(l.length === 0 || l.startsWith('#'))).length === 0
+    sdl
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => !(l.length === 0 || l.startsWith('#'))).length === 0
   )
 }
 
@@ -183,14 +183,14 @@ function isEmptySDL(sdl: string): boolean {
  * @returns Both the collection of all type definitions, and the collection of imported type definitions
  */
 function collectDefinitions(
-	imports: string[],
-	sdl: string,
-	filePath: string,
-	rootFields: string[],
-	schemas?: { [key: string]: string },
-	processedFiles: Set<string> = new Set(),
-	typeDefinitions: ValidDefinitionNode[][] = [],
-	allDefinitions: ValidDefinitionNode[][] = [],
+  imports: string[],
+  sdl: string,
+  filePath: string,
+  rootFields: string[],
+  schemas?: { [key: string]: string },
+  processedFiles: Set<string> = new Set(),
+  typeDefinitions: ValidDefinitionNode[][] = [],
+  allDefinitions: ValidDefinitionNode[][] = [],
 ): {
   allDefinitions: ValidDefinitionNode[][]
   typeDefinitions: ValidDefinitionNode[][]
@@ -198,31 +198,31 @@ function collectDefinitions(
   const key = isFile(filePath) ? path.resolve(filePath) : filePath
   const dirname = path.dirname(filePath)
 
-	// Get TypeDefinitionNodes from current schema
+  // Get TypeDefinitionNodes from current schema
   const document = getDocumentFromSDL(sdl)
 
-	// Add all definitions to running total
+  // Add all definitions to running total
   allDefinitions.push(filterTypeDefinitions(document.definitions))
 
-	// Filter TypeDefinitionNodes by type and defined imports
+  // Filter TypeDefinitionNodes by type and defined imports
   const currentTypeDefinitions = filterImportedDefinitions(
-		imports,
-		document.definitions,
-		rootFields,
-		allDefinitions,
-	)
+    imports,
+    document.definitions,
+    rootFields,
+    allDefinitions,
+  )
 
-	// Add typedefinitions to running total
+  // Add typedefinitions to running total
   typeDefinitions.push(currentTypeDefinitions)
 
-	// Mark file as processed (for circular dependency cases)
+  // Mark file as processed (for circular dependency cases)
   processedFiles.add(key)
 
-	// Read imports from current file
+  // Read imports from current file
   const rawModules = parseSDL(sdl)
   const mergedModules: RawModule[] = []
 
-	// Merge imports from the same path
+  // Merge imports from the same path
   rawModules.forEach(m => {
     const mergedModule = mergedModules.find(mm => mm.from === m.from)
     if (mergedModule) {
@@ -232,28 +232,28 @@ function collectDefinitions(
     }
   })
 
-	// Process each file (recursively)
+  // Process each file (recursively)
   mergedModules.forEach(m => {
-		// If it was not yet processed (in case of circular dependencies)
+    // If it was not yet processed (in case of circular dependencies)
     const moduleFilePath =
-			isFile(filePath) && isFile(m.from)
-				? path.resolve(path.join(dirname, m.from))
-				: m.from
+      isFile(filePath) && isFile(m.from)
+        ? path.resolve(path.join(dirname, m.from))
+        : m.from
     if (!processedFiles.has(moduleFilePath)) {
       collectDefinitions(
-				m.imports,
-				read(moduleFilePath, schemas),
-				moduleFilePath,
-				rootFields,
-				schemas,
-				processedFiles,
-				typeDefinitions,
-				allDefinitions,
-			)
+        m.imports,
+        read(moduleFilePath, schemas),
+        moduleFilePath,
+        rootFields,
+        schemas,
+        processedFiles,
+        typeDefinitions,
+        allDefinitions,
+      )
     }
   })
 
-	// Return the maps of type definitions from each file
+  // Return the maps of type definitions from each file
   return { allDefinitions, typeDefinitions }
 }
 
@@ -266,50 +266,50 @@ function collectDefinitions(
  * @returns Filtered collection of type definitions
  */
 function filterImportedDefinitions(
-	imports: string[],
-	typeDefinitions: DefinitionNode[],
-	rootFields: string[],
-	allDefinitions: ValidDefinitionNode[][] = [],
+  imports: string[],
+  typeDefinitions: DefinitionNode[],
+  rootFields: string[],
+  allDefinitions: ValidDefinitionNode[][] = [],
 ): ValidDefinitionNode[] {
-	// This should do something smart with fields
+  // This should do something smart with fields
 
   const filteredDefinitions = filterTypeDefinitions(typeDefinitions)
 
   if (includes(imports, '*')) {
     if (
-			imports.length === 1 &&
-			imports[0] === '*' &&
-			allDefinitions.length > 1
-		) {
+      imports.length === 1 &&
+      imports[0] === '*' &&
+      allDefinitions.length > 1
+    ) {
       const previousTypeDefinitions: { [key: string]: DefinitionNode } = keyBy(
-				flatten(allDefinitions.slice(0, allDefinitions.length - 1)).filter(
-					def => !includes(rootFields, def.name.value),
-				),
-				def => def.name.value,
-			)
+        flatten(allDefinitions.slice(0, allDefinitions.length - 1)).filter(
+          def => !includes(rootFields, def.name.value),
+        ),
+        def => def.name.value,
+      )
       return typeDefinitions.filter(
-				typeDef =>
-					typeDef.kind === 'ObjectTypeDefinition' &&
-					previousTypeDefinitions[typeDef.name.value],
-			) as ObjectTypeDefinitionNode[]
+        typeDef =>
+          typeDef.kind === 'ObjectTypeDefinition' &&
+          previousTypeDefinitions[typeDef.name.value],
+      ) as ObjectTypeDefinitionNode[]
     }
     return filteredDefinitions
   } else {
     const result = filteredDefinitions.filter(d =>
-			includes(imports.map(i => i.split('.')[0]), d.name.value),
-		)
+      includes(imports.map(i => i.split('.')[0]), d.name.value),
+    )
     const fieldImports = imports.filter(i => i.split('.').length > 1)
     const groupedFieldImports = groupBy(fieldImports, x => x.split('.')[0])
 
     for (const rootType in groupedFieldImports) {
       const fields = groupedFieldImports[rootType].map(x => x.split('.')[1])
       ; (filteredDefinitions.find(
-					def => def.name.value === rootType,
-				) as ObjectTypeDefinitionNode).fields = (filteredDefinitions.find(
-					def => def.name.value === rootType,
-				) as ObjectTypeDefinitionNode).fields.filter(
-					f => includes(fields, f.name.value) || includes(fields, '*'),
-					)
+          def => def.name.value === rootType,
+        ) as ObjectTypeDefinitionNode).fields = (filteredDefinitions.find(
+          def => def.name.value === rootType,
+        ) as ObjectTypeDefinitionNode).fields.filter(
+          f => includes(fields, f.name.value) || includes(fields, '*'),
+          )
     }
 
     return result
@@ -323,7 +323,7 @@ function filterImportedDefinitions(
  * @returns Relevant type definitions
  */
 function filterTypeDefinitions(
-	definitions: DefinitionNode[],
+  definitions: DefinitionNode[],
 ): ValidDefinitionNode[] {
   const validKinds = [
     'DirectiveDefinition',
@@ -335,6 +335,6 @@ function filterTypeDefinitions(
     'InputObjectTypeDefinition',
   ]
   return definitions
-		.filter(d => includes(validKinds, d.kind))
-		.map(d => d as ValidDefinitionNode)
+    .filter(d => includes(validKinds, d.kind))
+    .map(d => d as ValidDefinitionNode)
 }
