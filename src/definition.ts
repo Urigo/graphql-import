@@ -11,7 +11,8 @@ import {
 	InputValueDefinitionNode,
 	FieldDefinitionNode,
 	SchemaDefinitionNode,
-	OperationTypeDefinitionNode
+	OperationTypeDefinitionNode,
+	OperationTypeNode
 } from 'graphql'
 
 const builtinTypes = ['String', 'Float', 'Int', 'Boolean', 'ID']
@@ -68,9 +69,10 @@ export function completeDefinitionPool(
  * for example: QueryType, MutationType (used by neo4j)
  */
 export function getSchemaDefinitionNode(operationTypes: any[]): SchemaDefinitionNode {
-  const mapOperationType: (s: string) => OperationTypeDefinitionNode = (typeName: string) => ({
+  const operations: OperationTypeNode[] = ['query', 'mutation', 'subscription']
+  const mapOperationType: (s: string, i: number) => OperationTypeDefinitionNode = (typeName: string, i: number) => ({
     kind: 'OperationTypeDefinition',
-    operation: 'query',
+    operation: operations[i],
     type: {
       kind: 'NamedType',
       name: {
