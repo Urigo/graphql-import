@@ -75,7 +75,7 @@ test('parse: multi line import', t => {
 
 test('Module in node_modules', t => {
   const b = `\
-# import lower from './lowerf.graphql'
+# import lower from './lower.graphql'
 type B {
   id: ID!
   nickname: String! @lower
