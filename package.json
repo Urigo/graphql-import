@@ -40,18 +40,18 @@
   "devDependencies": {
     "@types/graphql": "0.12.6",
     "@types/lodash": "4.14.116",
-    "@types/node": "9.6.27",
     "@types/resolve-from": "0.0.18",
+    "@types/node": "9.6.31",
     "ava": "0.25.0",
-    "ava-ts": "0.25.0",
+    "ava-ts": "0.25.1",
     "graphql": "0.13.2",
     "nyc": "11.8.0",
     "tap-xunit": "2.3.0",
-    "ts-node": "6.0.5",
-    "tslint": "5.10.0",
+    "ts-node": "7.0.1",
+    "tslint": "5.11.0",
     "tslint-config-standard": "7.0.0",
     "typedoc": "0.11.1",
-    "typescript": "2.8.3"
+    "typescript": "3.0.1"
   },
   "dependencies": {
     "lodash": "^4.17.4",

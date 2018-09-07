@@ -128,6 +128,17 @@ type Query {
   t.is(importSchema('fixtures/import-duplicate/all.graphql'), expectedSDL)
 })
 
+test('importSchema: import nested', t => {
+  const expectedSDL = `\
+type Query {
+  first: String
+  second: Float
+  third: String
+}
+`
+  t.is(importSchema('fixtures/import-nested/all.graphql'), expectedSDL)
+})
+
 test('importSchema: field types', t => {
   const expectedSDL = `\
 type A {
@@ -784,4 +795,15 @@ test('missing type on directive', t => {
     err.message,
     `Directive first: Couldn't find type first in any of the schemas.`,
   )
+})
+
+test('import with collision', t => {
+  // Local type gets preference over imported type
+  const expectedSDL = `\
+type User {
+  id: ID!
+  name: String!
+}
+`
+  t.is(importSchema('fixtures/collision/a.graphql'), expectedSDL)
 })
