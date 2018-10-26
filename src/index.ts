@@ -26,14 +26,18 @@ export interface RawModule {
 
 const rootFields = ['Query', 'Mutation', 'Subscription']
 
-const read = (schema: string, schemas?: { [key: string]: string }) => {
+const read = (schema: string, schemas?: { [key: string]: string }): string => {
   if (isFile(schema)) {
     return fs.readFileSync(schema, { encoding: 'utf8' })
+  }
+  if (isDirectory(schema)) {
+    return readAllGraphqlFilesInDirectory(schema)
   }
   return schemas ? schemas[schema] : schema
 }
 
 const isFile = f => f.endsWith('.graphql')
+const isDirectory = f => f.endsWith('/')
 
 /**
  * Parse a single import line and extract imported types and schema filename
@@ -340,4 +344,27 @@ function filterTypeDefinitions(
   return definitions
     .filter(d => includes(validKinds, d.kind))
     .map(d => d as ValidDefinitionNode)
+}
+
+function readAllGraphqlFilesInDirectory(directory: string) {
+  // collect name+contents so we can sort by name for deterministic output
+  const namesAndContents: [string, string][] = []
+  const dirs = [directory]
+  while (dirs.length > 0) {
+    const dir = dirs.pop()
+    fs.readdirSync(dir).forEach(name => {
+      const p = path.join(dir, name)
+      if (name.endsWith('.graphql')) {
+        namesAndContents.push([p, fs.readFileSync(p, { encoding: 'utf-8' })])
+      }
+      const stat = fs.statSync(p)
+      if (stat.isDirectory()) {
+        dirs.push(p)
+      }
+    })
+  }
+  return namesAndContents
+    .sort(([path1, c1], [path2, c2]) => path1.localeCompare(path2))
+    .map(([_, contents]) => contents)
+    .join(' ')
 }

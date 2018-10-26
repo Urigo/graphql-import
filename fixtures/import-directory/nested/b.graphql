@@ -1,0 +1,4 @@
+type B {
+  hello: String!
+  c1: C1
+}

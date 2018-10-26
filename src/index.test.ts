@@ -807,3 +807,23 @@ type User {
 `
   t.is(importSchema('fixtures/collision/a.graphql'), expectedSDL)
 })
+
+test('import directory', t => {
+  const expectedSDL = `\
+type A {
+  first: String
+  second: Float
+  b: B
+}
+
+type C1 {
+  id: ID!
+}
+
+type B {
+  hello: String!
+  c1: C1
+}
+`
+  t.is(importSchema('fixtures/import-directory/'), expectedSDL)
+})
