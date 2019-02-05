@@ -5,7 +5,7 @@
     "node": ">=4.0.0"
   },
   "license": "MIT",
-  "repository": "git@github.com:graphcool/graphql-import.git",
+  "repository": "git@github.com:prisma/graphql-import.git",
   "files": ["dist"],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
