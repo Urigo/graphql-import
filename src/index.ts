@@ -33,7 +33,7 @@ const read = (schema: string, schemas?: { [key: string]: string }) => {
   return schemas ? schemas[schema] : schema
 }
 
-const isFile = f => f.endsWith('.graphql')
+const isFile = f => f.endsWith('.graphql') || f.endsWith('.gql')
 
 /**
  * Parse a single import line and extract imported types and schema filename
