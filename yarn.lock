@@ -413,13 +413,13 @@
     unixify "1.0.0"
     valid-url "1.0.9"
 
-"@graphql-toolkit/git-loader@0.9.5":
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/git-loader/-/git-loader-0.9.5.tgz#5aa5eb194926bc63c945756f972d3e61925dd952"
-  integrity sha512-pEPcWbC5tGqjwdT6aMEm8RF2V3QYadgRgZ49BN3GfR2aX5PF/qwypE/WopVlZEcUViPFAhmETYiN9sZz81rDmg==
+"@graphql-toolkit/git-loader@0.9.6":
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/git-loader/-/git-loader-0.9.6.tgz#1ca05f73000c82e79e9afc3136e4b80072a64e35"
+  integrity sha512-eRdkoZq5hUpwz3ihr1wDMV8gHIQPupNeGsi3dygAG+60rH0ZK0ypNSHKkaO3OnFVPfjNAO7nIPw1+O7vD7IbsA==
   dependencies:
-    "@graphql-toolkit/common" "0.9.5"
-    "@graphql-toolkit/graphql-tag-pluck" "0.9.5"
+    "@graphql-toolkit/common" "0.9.6"
+    "@graphql-toolkit/graphql-tag-pluck" "0.9.6"
     simple-git "1.131.0"
 
 "@graphql-toolkit/github-loader@0.9.6":
@@ -438,18 +438,6 @@
   dependencies:
     "@graphql-toolkit/common" "0.9.6"
     tslib "1.10.0"
-
-"@graphql-toolkit/graphql-tag-pluck@0.9.5":
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/graphql-tag-pluck/-/graphql-tag-pluck-0.9.5.tgz#5b0289acc30edb4c8a09322e2958197775e709ab"
-  integrity sha512-loZdRTDx3Cm8UPZyRhwWgZ2rQbcTHgkXiggQ06AnMFvHK+8uk25bss0htNipx80RD2MBsqkTfUkjtqXtWbaDZA==
-  dependencies:
-    "@babel/parser" "7.8.3"
-    "@babel/traverse" "7.8.3"
-    "@babel/types" "7.8.3"
-    "@graphql-toolkit/common" "0.9.5"
-  optionalDependencies:
-    vue-template-compiler "^2.6.11"
 
 "@graphql-toolkit/graphql-tag-pluck@0.9.6":
   version "0.9.6"
